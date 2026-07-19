@@ -1,13 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('Missing Supabase environment variables');
-}
+// Provide fallback values for build environments where env vars may be missing
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://example.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'anon-key';
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type Database = {
   public: {
@@ -48,35 +45,85 @@ export type Database = {
           title: string;
           description: string | null;
           category: string | null;
-          location: {
-            lat: number;
-            lng: number;
-          };
+          location: string | null;
+          latitude: number;
+          longitude: number;
+          image_url: string | null;
           status: 'new' | 'in_progress' | 'resolved' | 'closed';
           priority: 'low' | 'medium' | 'high' | 'critical';
           created_at: string;
           updated_at: string;
         };
         Insert: {
+          id?: string;
           user_id: string;
           title: string;
-          description?: string;
-          category?: string;
-          location: { lat: number; lng: number };
+          description?: string | null;
+          category?: string | null;
+          location?: string | null;
+          latitude: number;
+          longitude: number;
+          image_url?: string | null;
           status?: 'new' | 'in_progress' | 'resolved' | 'closed';
           priority?: 'low' | 'medium' | 'high' | 'critical';
+          created_at?: string;
         };
         Update: {
+          id?: string;
+          user_id?: string;
           title?: string;
-          description?: string;
-          category?: string;
-          location?: { lat: number; lng: number };
+          description?: string | null;
+          category?: string | null;
+          location?: string | null;
+          latitude?: number;
+          longitude?: number;
+          image_url?: string | null;
           status?: 'new' | 'in_progress' | 'resolved' | 'closed';
           priority?: 'low' | 'medium' | 'high' | 'critical';
+          updated_at?: string;
+        };
+      };
+      ai_predictions: {
+        Row: {
+          id: string;
+          report_id: string;
+          detected_issue: string;
+          confidence: number;
+          severity: 'low' | 'medium' | 'high' | 'critical';
+          priority: 'low' | 'medium' | 'high' | 'critical';
+          department: string;
+          estimated_resolution: string;
+          summary: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          report_id: string;
+          detected_issue: string;
+          confidence: number;
+          severity: 'low' | 'medium' | 'high' | 'critical';
+          priority: 'low' | 'medium' | 'high' | 'critical';
+          department: string;
+          estimated_resolution: string;
+          summary: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          report_id?: string;
+          detected_issue?: string;
+          confidence?: number;
+          severity?: 'low' | 'medium' | 'high' | 'critical';
+          priority?: 'low' | 'medium' | 'high' | 'critical';
+          department?: string;
+          estimated_resolution?: string;
+          summary?: string;
         };
       };
     };
-    Functions: {};
-    Enums: {};
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    Views: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
