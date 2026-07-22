@@ -51,10 +51,11 @@ export async function sendOtp(email: string): Promise<void> {
     throw new Error('Please provide a valid email address.');
   }
   try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     const { error } = await supabase.auth.signInWithOtp({
       email,
       // A redirect URL is required by Supabase, but we handle verification manually.
-      options: { emailRedirectTo: `${getEnv('NEXT_PUBLIC_BASE_URL')}/auth/callback` },
+      options: { emailRedirectTo: baseUrl ? `${baseUrl}/auth/callback` : undefined },
     });
     if (error) {
       throw new Error('Failed to send OTP. Please try again later.');
