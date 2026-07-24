@@ -2,114 +2,237 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import Spinner from "@/components/ui/Spinner";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, Sparkles, ArrowRight, CheckCircle2, User, Building2, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/app/auth/AuthProvider";
 
 export default function LoginPage() {
-  const { requestOtp, loading: authLoading } = useAuth();
-  const router = useRouter();
-  const [email, setEmail] = useState("");
+  const { demoLogin } = useAuth();
+  
+  const [email, setEmail] = useState("citizen@zivic.ai");
+  const [password, setPassword] = useState("zivic2026");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"citizen" | "admin" | "officer">("citizen");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setSubmitting(true);
     try {
-      await requestOtp(email);
-      // If not in dev mode, navigate to OTP verification page
-      if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE !== "true") {
-        router.push(`/login/verify?email=${encodeURIComponent(email)}`);
-      }
+      await demoLogin(email, password, selectedRole);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to send OTP. Please try again.";
-      setError(message);
-    } finally {
+      console.error("Login failed:", err);
       setSubmitting(false);
     }
   };
 
-  const isDisabled = submitting || authLoading;
+  const handleQuickDemo = async (role: "citizen" | "admin" | "officer") => {
+    setSubmitting(true);
+    const mockEmail = `${role}@zivic.ai`;
+    setEmail(mockEmail);
+    setSelectedRole(role);
+    await demoLogin(mockEmail, "zivic2026", role);
+  };
 
   return (
-    <motion.main
-      className="flex min-h-screen items-center justify-center bg-gradient-to-b from-indigo-500 via-purple-500 to-cyan-400 p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="w-full max-w-md bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
-        <CardHeader className="flex flex-col items-center space-y-2">
-          <svg
-            width="64"
-            height="64"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-indigo-200"
-          >
-            <path
-              d="M12 0C5.373 0 0 5.373 0 12c0 5.274 3.44 9.74 8.207 11.373.6.11.793-.262.793-.583v-2.17c-3.338.724-4.033-1.61-4.033-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.087-.744.082-.729.082-.729 1.203.084 1.837 1.236 1.837 1.236 1.07 1.834 2.808 1.304 3.492.997.108-.775.418-1.304.76-1.603-2.665-.304-5.466-1.332-5.466-5.932 0-1.31.468-2.382 1.236-3.222-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.3 1.23a11.51 11.51 0 013.003-.404c1.018.005 2.045.138 3.003.404 2.29-1.553 3.296-1.23 3.296-1.23.655 1.653.243 2.873.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.804 5.624-5.476 5.92.43.371.814 1.102.814 2.222v3.293c0 .322.192.697.801.58C20.565 21.736 24 17.274 24 12c0-6.627-5.373-12-12-12z"
-              fill="currentColor"
-            />
-          </svg>
-          <CardTitle className="text-2xl font-bold text-white">Zivic AI</CardTitle>
-          <p className="text-sm text-white/80">
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#060a12] p-4 text-white">
+      {/* Dynamic Animated Glass Blobs in background */}
+      <div className="pointer-events-none absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-indigo-600/40 via-purple-600/30 to-pink-500/20 blur-[120px] animate-blob-slow" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-cyan-500/30 via-teal-500/25 to-blue-600/40 blur-[130px] animate-blob-delay" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-indigo-500/10 blur-[150px] animate-blob-fast" />
+
+      {/* Grid overlay for cyberpunk vibe */}
+      <div 
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)`,
+          backgroundSize: '24px 24px'
+        }}
+      />
+
+      {/* Glassmorphic Login Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-white/20 bg-slate-900/60 p-6 sm:p-10 shadow-[0_16px_50px_0_rgba(0,0,0,0.5)] backdrop-blur-2xl"
+      >
+        {/* Top Glow Accent Bar */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500" />
+
+        {/* Header Header & Badge */}
+        <div className="flex flex-col items-center text-center">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/15 px-3.5 py-1 text-xs font-semibold tracking-wide text-indigo-300 backdrop-blur-md">
+            <Sparkles className="h-3.5 w-3.5 text-cyan-400 animate-pulse" />
+            ZIVIC AI v2.0 Platform
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-2">
+            Welcome to <span className="text-gradient-vibrant">Zivic AI</span>
+          </h1>
+          <p className="text-sm text-slate-300/80 max-w-sm">
             AI-Powered Urban Infrastructure Intelligence Platform
           </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <label htmlFor="email" className="text-sm font-medium text-white/90">
-                Email address
-              </label>
-              <Input
-                id="email"
+        </div>
+
+        {/* Form Container */}
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          {/* Email Input */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-200 tracking-wide uppercase flex items-center justify-between">
+              <span>Email Address</span>
+              <span className="text-[10px] text-cyan-400 font-mono">DEMO READY</span>
+            </label>
+            <div className="relative flex items-center">
+              <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                <Mail className="h-4 w-4" />
+              </div>
+              <input
                 type="email"
-                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isDisabled}
-                className="bg-white/20 text-white placeholder-white/60 focus-visible:ring-2 focus-visible:ring-indigo-300"
+                placeholder="citizen@zivic.ai"
                 required
+                className="w-full rounded-xl border border-white/15 bg-white/5 pl-10 pr-4 py-3 text-sm text-white placeholder-slate-400 backdrop-blur-md transition-all duration-200 focus:border-indigo-400 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               />
             </div>
-            {error && (
-              <p className="text-sm text-red-400" role="alert">
-                {error}
-              </p>
-            )}
-            <Button
-              type="submit"
-              disabled={isDisabled || !email}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
-            >
+          </div>
+
+          {/* Password Input with EYE BUTTON */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-200 tracking-wide uppercase flex items-center justify-between">
+              <span>Password</span>
+              <span className="text-[10px] text-slate-400 font-mono">ANY PASSWORD WORKS</span>
+            </label>
+            <div className="relative flex items-center">
+              <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                <Lock className="h-4 w-4" />
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                required
+                className="w-full rounded-xl border border-white/15 bg-white/5 pl-10 pr-12 py-3 text-sm text-white placeholder-slate-400 backdrop-blur-md transition-all duration-200 focus:border-indigo-400 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              />
+              {/* EYE BUTTON TOGGLE */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 text-cyan-400" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Role selector buttons */}
+          <div className="space-y-1.5 pt-1">
+            <label className="text-xs font-medium text-slate-200 tracking-wide uppercase">
+              Select Demo Role
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedRole("citizen")}
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-medium transition-all ${
+                  selectedRole === "citizen"
+                    ? "border-cyan-400/80 bg-cyan-500/20 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+                    : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                <User className="h-3.5 w-3.5" /> Citizen
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("officer")}
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-medium transition-all ${
+                  selectedRole === "officer"
+                    ? "border-indigo-400/80 bg-indigo-500/20 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
+                    : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                <Building2 className="h-3.5 w-3.5" /> Officer
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("admin")}
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-medium transition-all ${
+                  selectedRole === "admin"
+                    ? "border-fuchsia-400/80 bg-fuchsia-500/20 text-fuchsia-300 shadow-[0_0_15px_rgba(217,70,239,0.3)]"
+                    : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                <ShieldAlert className="h-3.5 w-3.5" /> Admin
+              </button>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 p-3.5 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70"
+          >
+            <div className="relative flex items-center justify-center gap-2">
               {submitting ? (
                 <>
-                  <Spinner className="mr-2 h-4 w-4" /> Sending OTP
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Logging in...</span>
                 </>
               ) : (
-                "Continue"
+                <>
+                  <span>Sign In & Launch Dashboard</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </>
               )}
-            </Button>
-            <Button
-              variant="ghost"
+            </div>
+          </button>
+        </form>
+
+        {/* Quick Demo Access Bar */}
+        <div className="mt-6 pt-5 border-t border-white/10">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
+            <span className="flex items-center gap-1">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> Instant Demo Sign-in
+            </span>
+            <span className="text-[10px] text-slate-400">1-Click Access</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
               type="button"
-              onClick={() => router.replace("/")}
-              disabled={isDisabled}
+              onClick={() => handleQuickDemo("citizen")}
+              className="flex items-center justify-between p-2.5 rounded-xl border border-white/10 bg-white/5 text-xs text-slate-200 hover:bg-white/10 hover:border-cyan-400/40 transition-all text-left group"
             >
-              Back to Home
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </motion.main>
+              <div>
+                <div className="font-semibold text-white group-hover:text-cyan-300">Demo Citizen</div>
+                <div className="text-[10px] text-slate-400">Public issues & maps</div>
+              </div>
+              <CheckCircle2 className="h-4 w-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleQuickDemo("officer")}
+              className="flex items-center justify-between p-2.5 rounded-xl border border-white/10 bg-white/5 text-xs text-slate-200 hover:bg-white/10 hover:border-indigo-400/40 transition-all text-left group"
+            >
+              <div>
+                <div className="font-semibold text-white group-hover:text-indigo-300">Demo Officer</div>
+                <div className="text-[10px] text-slate-400">Work orders & dispatch</div>
+              </div>
+              <CheckCircle2 className="h-4 w-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 }
