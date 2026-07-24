@@ -1,5 +1,5 @@
 -- ============================================================================
--- ZIVIC AI - SUPABASE DATABASE SCHEMA MIGRATION
+-- ZIVIC AI - SUPABASE DATABASE SCHEMA MIGRATION (IDEMPOTENT)
 -- Run this script in your Supabase SQL Editor (https://supabase.com/dashboard)
 -- ============================================================================
 
@@ -48,26 +48,37 @@ CREATE TABLE IF NOT EXISTS public.ai_predictions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Enable Row Level Security (RLS) & Policies for Open Access in MVP
+-- 4. Enable Row Level Security (RLS)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_predictions ENABLE ROW LEVEL SECURITY;
 
+-- 5. Drop & Create Policies safely (Idempotent)
+DROP POLICY IF EXISTS "Allow public read users" ON public.users;
+DROP POLICY IF EXISTS "Allow public insert users" ON public.users;
+DROP POLICY IF EXISTS "Allow public update users" ON public.users;
 CREATE POLICY "Allow public read users" ON public.users FOR SELECT USING (true);
 CREATE POLICY "Allow public insert users" ON public.users FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update users" ON public.users FOR UPDATE USING (true);
 
+DROP POLICY IF EXISTS "Allow public read reports" ON public.reports;
+DROP POLICY IF EXISTS "Allow public insert reports" ON public.reports;
+DROP POLICY IF EXISTS "Allow public update reports" ON public.reports;
 CREATE POLICY "Allow public read reports" ON public.reports FOR SELECT USING (true);
 CREATE POLICY "Allow public insert reports" ON public.reports FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update reports" ON public.reports FOR UPDATE USING (true);
 
+DROP POLICY IF EXISTS "Allow public read predictions" ON public.ai_predictions;
+DROP POLICY IF EXISTS "Allow public insert predictions" ON public.ai_predictions;
 CREATE POLICY "Allow public read predictions" ON public.ai_predictions FOR SELECT USING (true);
 CREATE POLICY "Allow public insert predictions" ON public.ai_predictions FOR INSERT WITH CHECK (true);
 
--- 5. Storage Bucket Configuration for Images
+-- 6. Storage Bucket Configuration for Images
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('report-images', 'report-images', true)
 ON CONFLICT (id) DO NOTHING;
 
+DROP POLICY IF EXISTS "Public Read Report Images" ON storage.objects;
+DROP POLICY IF EXISTS "Public Upload Report Images" ON storage.objects;
 CREATE POLICY "Public Read Report Images" ON storage.objects FOR SELECT USING (bucket_id = 'report-images');
 CREATE POLICY "Public Upload Report Images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'report-images');
